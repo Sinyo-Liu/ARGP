@@ -9,20 +9,55 @@ To address this, we propose *Adaptive and Recoverable Gaussian Pruning (ARGP)*, 
 Extensive experiments on Mip-NeRF 360, Tanks & Temples, and Deep Blending validate the effectiveness our proposed ARGP. For instance, ARGP achieves an 85.4% reduction in Gaussian counts and 1.60× training speedup, while maintaining competitive reconstruction quality on Tanks & Temples.*
  
 
-## Setup
 
+
+
+## Dataset
+The used datasets, MipNeRF360 is hosted by the paper authors [here](https://jonbarron.info/mipnerf360/). Tank & Temple and DeepBlending are obtained from [here](https://github.com/graphdeco-inria/gaussian-splatting/).
+
+
+## Run
 Follow the setup instructions for the original [3D-GS](https://github.com/graphdeco-inria/gaussian-splatting/) codebase. Our code changes are made in (1) the differential renderer submodule and (2) the Python files in this repo.
 
-
-## Cloning the Repository
-
-The repository contains submodules, thus please check it out with 
+### Environment
 ```shell
-# SSH
-git clone git@github.com:Sinyo-Liu/ARGP.git --recursive
-```
-or
-```shell
-# HTTPS
 git clone https://github.com/Sinyo-Liu/ARGP --recursive
+cd ARGP
+
+conda create -n argp_env python=3.8
+conda activate argp_env
+
+# install pytorch
+pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu121
+
+# install dependencies
+pip install -r requirements.txt
+
+# install submodules
+cd submodules/diff-gaussian-rasterization
+python setup.py install
+
+cd submodules/simple-knn
+python setup.py install
+
+```
+
+
+### Train
+```shell
+python train.py -s /path/to/dataset --eval
+```
+
+### Render & Evaluation
+```shell
+python render.py -m /path/to/output 
+python metrics.py -m /path/to/output
+```
+
+## Example Results
+We provide example ckpts of re-produced 3DGS and ARGP for several scenes which can be downloaded from [Google Drive](https://drive.google.com/drive/folders/1lGSYpIE1t80-RQMNWEe7iNc0BmSoZYp6?usp=sharing). If you want to evaluate our pre-trained models, you will have to download the corresponding source data sets and indicate their location to `render.py` with an additional `--source_path/-s` flag.
+
+```
+python render.py -m /path/to/pre-trained_model -s /path/to/dataset
+python metrics.py -m /path/to/pre-trained_model
 ```
